@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MIGRATION_NAME="${1:-}"
+if [[ -z "${MIGRATION_NAME}" ]]; then
+  echo "Usage: $0 <MigrationName>"
+  exit 1
+fi
+
+export POWERDNS_DB_CONNECTION="${POWERDNS_DB_CONNECTION:-Host=localhost;Port=5432;Database=powerdns_expert;Username=postgres;Password=postgres}"
+
+dotnet ef migrations add "${MIGRATION_NAME}" \
+  --project src/Shared/PowerDNSExpert.Data/PowerDNSExpert.Data.csproj \
+  --output-dir Migrations
+
+echo "Migration '${MIGRATION_NAME}' created in src/Shared/PowerDNSExpert.Data/Migrations"

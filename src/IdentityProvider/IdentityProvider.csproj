@@ -4,6 +4,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Duende.IdentityServer" Version="7.0.6" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.6" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />

@@ -1,0 +1,13 @@
+<div class="min-h-screen p-6">
+  <div class="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-lg">
+    <h1 class="text-3xl font-bold text-slate-800">PowerDNS Expert Portal</h1>
+    <p class="mt-2 text-slate-600">Angular v21 + Tailwind Frontend mit Duende Authentifizierung und .NET APIs.</p>
+
+    <button (click)="signIn()" class="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700">
+      Login über Duende IdentityServer
+    </button>
+
+    <h2 class="mt-6 text-xl font-semibold">Produkte (Catalog API)</h2>
+    <pre class="mt-2 overflow-x-auto rounded bg-slate-900 p-4 text-xs text-slate-100">{{ products$ | async | json }}</pre>
+  </div>
+</div>

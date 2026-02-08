@@ -46,10 +46,14 @@ Alle Backend-Projekte verwenden dieselbe PostgreSQL-Instanz (`powerdns_expert`) 
 
 ## EF Core Migrations erstellen
 
-Du hast in diesem Setup **zwei Migrations-Bereiche**:
+Du hast in diesem Setup **vier relevante EF-Kontexte**:
 
 1. **Business-Daten** (`AppDbContext`) im Projekt `PowerDNSExpert.Data`
-2. **IdentityServer/Identity-Daten** (Konfig + Persisted Grants + Users) im Projekt `IdentityProvider`
+2. **Identity-Userdaten** (`ApplicationIdentityDbContext`) im Projekt `IdentityProvider`
+3. **IdentityServer-Konfiguration** (`ConfigurationDbContext`) im Projekt `IdentityProvider`
+4. **IdentityServer-Persisted Grants** (`PersistedGrantDbContext`) im Projekt `IdentityProvider`
+
+Wenn dir IdentityServer-Tabellen fehlen, fehlen meistens Migrationen für **3 + 4**.
 
 ### 1) Migration für `AppDbContext` erstellen
 
@@ -57,43 +61,38 @@ Du hast in diesem Setup **zwei Migrations-Bereiche**:
 ./scripts/create-migration.sh InitialBusinessSchema
 ```
 
-Oder direkt mit `dotnet ef`:
-
-```bash
-dotnet ef migrations add InitialBusinessSchema \
-  --project src/Shared/PowerDNSExpert.Data/PowerDNSExpert.Data.csproj \
-  --output-dir Migrations
-```
-
 ### 2) Migration für `ApplicationIdentityDbContext` erstellen
 
 ```bash
-./scripts/create-identity-migration.sh InitialIdentitySchema
+./scripts/create-identity-migration.sh InitialIdentityUsers
 ```
 
-Oder direkt mit `dotnet ef`:
+### 3) Migration für `ConfigurationDbContext` erstellen
 
 ```bash
-dotnet ef migrations add InitialIdentitySchema \
-  --project src/IdentityProvider/IdentityProvider.csproj \
-  --context ApplicationIdentityDbContext \
-  --output-dir Migrations/ApplicationIdentity
+./scripts/create-idp-config-migration.sh InitialIdentityServerConfiguration
 ```
 
-> Für die Duende-`ConfigurationDbContext` und `PersistedGrantDbContext` werden i.d.R. ebenfalls eigene Migrationen erzeugt, falls noch nicht vorhanden.
+### 4) Migration für `PersistedGrantDbContext` erstellen
+
+```bash
+./scripts/create-idp-grants-migration.sh InitialIdentityServerPersistedGrants
+```
 
 ### Migrationen anwenden
 
 ```bash
-# Business-Daten
-dotnet ef database update \
-  --project src/Shared/PowerDNSExpert.Data/PowerDNSExpert.Data.csproj
+# 1) Business-Daten
+dotnet ef database update   --project src/Shared/PowerDNSExpert.Data/PowerDNSExpert.Data.csproj
 
-# Identity-Daten
-dotnet ef database update \
-  --project src/IdentityProvider/IdentityProvider.csproj \
-  --context ApplicationIdentityDbContext
+# 2) Identity-Userdaten
+dotnet ef database update   --project src/IdentityProvider/IdentityProvider.csproj   --context ApplicationIdentityDbContext
+
+# 3) IdentityServer-Konfiguration
+dotnet ef database update   --project src/IdentityProvider/IdentityProvider.csproj   --context ConfigurationDbContext
+
+# 4) IdentityServer-PersistedGrants
+dotnet ef database update   --project src/IdentityProvider/IdentityProvider.csproj   --context PersistedGrantDbContext
 ```
 
-Das `IdentityProvider`-Projekt ruft beim Start außerdem `Database.Migrate()` für seine Kontexte auf.
-
+Danach `dotnet run --project src/IdentityProvider` starten; beim Start werden die Kontexte zusätzlich per `Database.Migrate()` geprüft.
